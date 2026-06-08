@@ -1,0 +1,44 @@
+<core:FragmentDefinition xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+    <Dialog id="applicationLogDialog" title="Registro dell'applicazione" contentWidth="70rem" contentHeight="34rem" draggable="true" resizable="true">
+        <content>
+            <VBox id="applicationLogContent" width="100%" height="100%">
+                <OverflowToolbar id="applicationLogToolbar">
+                    <Title id="applicationLogTitle" text="Dettagli registro" level="H2"/>
+                    <Title id="applicationLogVariantTitle" text="Standard" level="H5"/>
+                    <Button id="applicationLogVariantButton" icon="sap-icon://slim-arrow-down" type="Transparent"/>
+                    <ToolbarSpacer id="applicationLogToolbarSpacer"/>
+                    <SearchField id="applicationLogSearchField" width="22rem" placeholder="Cerca"/>
+                    <Button id="applicationLogSettingsButton" icon="sap-icon://action-settings" type="Transparent"/>
+                    <Button id="applicationLogExportButton" icon="sap-icon://excel-attachment" type="Transparent"/>
+                    <Button id="applicationLogMoreButton" icon="sap-icon://slim-arrow-down" type="Transparent"/>
+                </OverflowToolbar>
+                <Table id="applicationLogTable" width="100%" fixedLayout="false" items="{detail>/SelectedLogMessages}">
+                    <columns>
+                        <Column id="applicationLogColSeverity" width="10rem">
+                            <Text text="Gravità"/>
+                        </Column>
+                        <Column id="applicationLogColDescription">
+                            <Text text="Descrizione"/>
+                        </Column>
+                        <Column id="applicationLogColTimestamp" width="12rem" hAlign="End">
+                            <Text text="Timestamp"/>
+                        </Column>
+                    </columns>
+                    <items>
+                        <ColumnListItem id="applicationLogItem">
+                            <cells>
+                                <ObjectStatus id="applicationLogSeverity" text="{detail>Severity}" state="{detail>SeverityState}" icon="sap-icon://error"/>
+                                <Text id="applicationLogDescription" text="{detail>Description}"/>
+                                <Text id="applicationLogTimestamp" text="{detail>Timestamp}"/>
+                            </cells>
+                        </ColumnListItem>
+                    </items>
+                </Table>
+            </VBox>
+        </content>
+        <endButton>
+            <Button id="applicationLogCloseButton" text="Chiudi" type="Transparent" press=".onCloseApplicationLogDialog"/>
+        </endButton>
+    </Dialog>
+</core:FragmentDefinition>

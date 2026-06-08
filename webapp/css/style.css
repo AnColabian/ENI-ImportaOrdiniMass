@@ -1,0 +1,252 @@
+.iovPage {
+    background: var(--sapBackgroundColor);
+}
+
+.iovPage .sapMPageEnableScrolling {
+    overflow: hidden;
+}
+
+.iovFlexibleColumnLayout {
+    width: 100%;
+    height: 100%;
+}
+
+.iovFlexibleColumnLayout .sapFFCLColumn {
+    height: 100%;
+}
+
+.iovFlexibleColumnLayout .sapFFCLColumnContent {
+    height: 100%;
+}
+
+.iovHeader {
+    background: var(--sapPageHeader_Background);
+    border-bottom: 1px solid var(--sapGroup_TitleBorderColor);
+    box-shadow: var(--sapContent_HeaderShadow);
+    padding-left: 0.875rem;
+    padding-right: 1rem;
+}
+
+.iovHeaderTitle {
+    font-size: 1.375rem;
+    font-weight: 700;
+}
+
+.iovContent {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    background: var(--sapBackgroundColor);
+    padding: 2rem 3.5rem 0.75rem 0.875rem;
+    box-sizing: border-box;
+}
+
+.iovImportLabel {
+    margin-bottom: 1.625rem;
+}
+
+.iovImportBox {
+    gap: 1.375rem;
+    margin-bottom: 1.3125rem;
+}
+
+.iovImportInput {
+    max-width: 60rem;
+}
+
+.iovBrowseButton {
+    min-width: 5rem;
+}
+
+.iovBrowseButton .sapUiFupGroup {
+    display: inline-block;
+}
+
+.iovValidationMessage {
+    margin-bottom: 1.5rem;
+}
+
+.iovDropArea {
+    width: 100%;
+    height: 100%;
+    min-height: 34rem;
+    background: var(--sapGroup_ContentBackground);
+    border: 1px solid var(--sapGroup_ContentBorderColor);
+    box-sizing: border-box;
+    padding: 2rem;
+    overflow: hidden;
+}
+
+.iovDropAreaActive {
+    border: 0.125rem dashed var(--sapSelectedColor);
+    background: var(--sapList_SelectionBackgroundColor);
+}
+
+.iovDropIcon {
+    color: var(--sapContent_NonInteractiveIconColor);
+    margin-bottom: 1rem;
+}
+
+.iovDropText {
+    width: 100%;
+    max-width: 100%;
+    color: var(--sapContent_LabelColor);
+    font-size: 3.5rem;
+    line-height: 4.25rem;
+    font-weight: 400;
+    text-align: center;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-break: normal;
+}
+
+.iovSelectedFileText {
+    font-size: 1rem;
+    margin-top: 1rem;
+}
+
+.iovPreviewBox {
+    width: 100%;
+    height: 100%;
+    min-height: 30rem;
+}
+
+.iovPreviewToolbar {
+    background: transparent;
+    border: none;
+    padding-left: 1rem;
+    padding-right: 0.5rem;
+}
+
+.iovPreviewToolbar .sapMTitle {
+    font-weight: 700;
+}
+
+.iovPreviewScroll {
+    border-top: 1px solid var(--sapGroup_TitleBorderColor);
+    background: var(--sapGroup_ContentBackground);
+}
+
+.iovPreviewTable {
+    background: var(--sapGroup_ContentBackground);
+}
+
+.iovPreviewTable .sapMObjStatusError .sapMObjStatusText {
+    font-weight: 700;
+}
+
+.iovFooter {
+    background: var(--sapPageFooter_Background);
+    border-top: 1px solid var(--sapGroup_TitleBorderColor);
+    box-shadow: var(--sapContent_HeaderShadow);
+    padding-right: 0.5rem;
+}
+
+.iovFooter .sapMBtnEmphasized {
+    min-width: 4.375rem;
+}
+
+.iovColumnSettingsSelectAllBox {
+    height: 2.25rem;
+    box-sizing: border-box;
+}
+
+.iovColumnSettingsSelectAllText {
+    font-weight: 700;
+}
+
+.iovColumnSettingsListItemBox {
+    height: 2.25rem;
+    box-sizing: border-box;
+}
+
+.iovDetailPage {
+    background: var(--sapBackgroundColor);
+}
+
+.iovDetailContent {
+    width: 100%;
+    height: 100%;
+    padding: 1.5rem 1.25rem 0.75rem 1.25rem;
+    box-sizing: border-box;
+}
+
+.iovPositionResultBox {
+    margin-top: 0.75rem;
+}
+
+.iovPositionResultText {
+    font-size: 0.95rem;
+    line-height: 1.5rem;
+}
+
+.iovImportsRoot {
+    background: var(--sapBackgroundColor);
+}
+
+.iovImportsFilterArea {
+    padding: 1rem 2rem;
+    border-bottom: 1px solid var(--sapGroup_TitleBorderColor);
+}
+
+.iovImportsFilterItem {
+    margin-right: 1rem;
+}
+
+.iovImportsTableArea {
+    padding: 1.5rem 2rem 0 2rem;
+}
+
+.iovImportDetailHeader {
+    padding: 1.5rem 2rem 1rem 2rem;
+    border-bottom: 1px solid var(--sapGroup_TitleBorderColor);
+    background: var(--sapObjectHeader_Background);
+}
+
+.iovImportDetailContent {
+    padding: 0.5rem 2rem 0 2rem;
+}
+
+.iovImportDetailCard {
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    background: var(--sapGroup_ContentBackground);
+}
+
+.iovImportDetailSummaryIconBox {
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+    align-items: center;
+    justify-content: center;
+    background: var(--sapHighlightColor);
+}
+
+.iovImportDetailSummaryIcon {
+    color: var(--sapContent_ContrastIconColor);
+}
+
+.iovImportDetailSummaryBlock {
+    margin-right: 3rem;
+}
+
+.iovImportDetailMetric {
+    font-size: 1.25rem;
+}
+
+.iovImportDetailStatus {
+    font-size: 1.25rem;
+}
+.iovCorrectionDropText {
+    width: 100%;
+    color: var(--sapContent_LabelColor);
+    font-size: 2rem;
+    line-height: 2.75rem;
+    text-align: center;
+}
+.iovCorrectionDropHint {
+    color: var(--sapContent_LabelColor);
+    font-size: 1rem;
+    margin-top: 1rem;
+    text-align: center;
+}

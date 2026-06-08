@@ -1,0 +1,127 @@
+{
+  "_version": "1.84.0",
+  "sap.app": {
+    "id": "importaordinivendita",
+    "type": "application",
+    "i18n": "i18n/i18n.properties",
+    "applicationVersion": {
+      "version": "0.0.1"
+    },
+    "title": "{{appTitle}}",
+    "description": "{{appDescription}}",
+    "resources": "resources.json",
+    "sourceTemplate": {
+      "id": "@sap/generator-fiori:basic",
+      "version": "1.24.0",
+      "toolsId": "f3d0dabc-4463-4d20-b4ed-05e79a22b267"
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "icons": {
+      "icon": "",
+      "favIcon": "",
+      "phone": "",
+      "phone@2": "",
+      "tablet": "",
+      "tablet@2": ""
+    },
+    "deviceTypes": {
+      "desktop": true,
+      "tablet": true,
+      "phone": true
+    }
+  },
+  "sap.ui5": {
+    "flexEnabled": false,
+    "dependencies": {
+      "minUI5Version": "1.148.0",
+      "libs": {
+        "sap.m": {},
+        "sap.ui.core": {},
+        "sap.ui.unified": {},
+        "sap.ui.export": {},
+        "sap.f": {}
+      }
+    },
+    "contentDensities": {
+      "compact": true,
+      "cozy": true
+    },
+    "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "importaordinivendita.i18n.i18n"
+        }
+      }
+    },
+    "resources": {
+      "css": [
+        {
+          "uri": "css/style.css"
+        }
+      ]
+    },
+    "routing": {
+      "config": {
+        "routerClass": "sap.m.routing.Router",
+        "controlAggregation": "pages",
+        "controlId": "app",
+        "transition": "slide",
+        "type": "View",
+        "viewType": "XML",
+        "path": "importaordinivendita.view",
+        "async": true,
+        "viewPath": "importaordinivendita.view"
+      },
+      "routes": [
+        {
+          "name": "RouteView1",
+          "pattern": ":?query:",
+          "target": [
+            "TargetView1"
+          ]
+        },
+        {
+          "name": "RouteImports",
+          "pattern": "imports",
+          "target": [
+            "TargetImports"
+          ]
+        },
+        {
+          "name": "RouteImportDetail",
+          "pattern": "imports/{ImportId}",
+          "target": [
+            "TargetImportDetail"
+          ]
+        }
+      ],
+      "targets": {
+        "TargetView1": {
+          "id": "View1",
+          "name": "View1"
+        },
+        "TargetImports": {
+          "id": "Imports",
+          "name": "Imports"
+        },
+        "TargetImportDetail": {
+          "id": "ImportDetail",
+          "name": "ImportDetail"
+        }
+      }
+    },
+    "rootView": {
+      "viewName": "importaordinivendita.view.App",
+      "type": "XML",
+      "id": "App",
+      "async": true
+    }
+  },
+  "sap.platform.abap": {
+    "uri": "/sap/bc/ui5_ui5/sap/ZIMPORTODVEXCEL",
+    "_version": "1.1.0"
+  }
+}

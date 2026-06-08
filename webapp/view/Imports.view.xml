@@ -1,0 +1,108 @@
+<mvc:View controllerName="importaordinivendita.controller.Imports"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+    <Page id="importsPage" showHeader="false" enableScrolling="false" class="iovImportsPage">
+        <content>
+            <VBox id="importsRoot" width="100%" height="100%" class="iovImportsRoot">
+                <Toolbar id="importsShellHeader" height="3.25rem" class="iovImportsShellHeader">
+                    <Button id="importsBackButton" icon="sap-icon://nav-back" type="Transparent" press=".onNavBackToImport"/>
+                    <Text id="importsLogoText" text="eni" class="iovImportsLogoText"/>
+                    <Title id="importsShellTitle" text="Tutte le importazioni (ordini di vendita)" level="H2" class="iovImportsShellTitle"/>
+                    <Button id="importsShellTitleMenuButton" icon="sap-icon://slim-arrow-down" type="Transparent"/>
+                    <ToolbarSpacer id="importsShellSpacerLeft"/>
+                    <HBox id="importsGlobalSearchBox" alignItems="Center" class="iovImportsGlobalSearchBox">
+                        <Select id="importsGlobalSearchScope" selectedKey="Tutto" width="6rem">
+                            <items>
+                                <core:Item id="importsGlobalSearchScopeAll" key="Tutto" text="Tutto"/>
+                            </items>
+                        </Select>
+                        <SearchField id="importsGlobalSearchField" value="{history>/filters/search}" width="28rem" placeholder="Cerca" search=".onHistorySearch"/>
+                    </HBox>
+                    <ToolbarSpacer id="importsShellSpacerRight"/>
+                    <Button id="importsHelpButton" icon="sap-icon://sys-help" type="Transparent"/>
+                    <Button id="importsNotificationButton" icon="sap-icon://bell" type="Transparent"/>
+                    <Avatar id="importsUserAvatar" initials="SL" displayShape="Circle" class="iovImportsAvatar"/>
+                </Toolbar>
+                <Toolbar id="importsVariantToolbar" height="4rem" class="iovImportsVariantToolbar">
+                    <Title id="importsVariantTitle" text="Standard" level="H1" class="iovImportsVariantTitle"/>
+                    <Button id="importsVariantButton" icon="sap-icon://slim-arrow-down" type="Transparent"/>
+                    <ToolbarSpacer id="importsVariantSpacer"/>
+                    <Button id="importsBackToImportButton" text="Torna alla pagina importazione" type="Transparent" press=".onNavBackToImport"/>
+                </Toolbar>
+                <VBox id="importsFilterArea" class="iovImportsFilterArea">
+                    <HBox id="importsFilterRow" width="100%" alignItems="End">
+                        <VBox id="importsFreeSearchBox" width="20rem" class="iovImportsFilterItem">
+                            <SearchField id="importsFreeSearch" value="{history>/filters/search}" width="100%" placeholder="Cerca" search=".onHistorySearch"/>
+                        </VBox>
+                        <VBox id="importsDateBox" width="20rem" class="iovImportsFilterItem">
+                            <Label id="importsDateLabel" text="Data di importazione:"/>
+                            <DatePicker id="importsDatePicker" value="{history>/filters/importDate}" width="100%" displayFormat="dd.MM.yyyy" valueFormat="dd.MM.yyyy" change=".onHistoryFilterChange"/>
+                        </VBox>
+                        <VBox id="importsNameBox" width="20rem" class="iovImportsFilterItem">
+                            <Label id="importsNameLabel" text="Nome importazione:"/>
+                            <Input id="importsNameInput" value="{history>/filters/importName}" width="100%" showValueHelp="true" valueHelpRequest=".onHistorySearch" submit=".onHistorySearch"/>
+                        </VBox>
+                        <VBox id="importsStatusBox" width="20rem" class="iovImportsFilterItem">
+                            <Label id="importsStatusLabel" text="Stato di elaborazione:"/>
+                            <ComboBox id="importsStatusComboBox" selectedKey="{history>/filters/status}" width="100%" items="{history>/statusItems}" selectionChange=".onHistoryFilterChange">
+                                <items>
+                                    <core:Item id="importsStatusItem" key="{history>key}" text="{history>text}"/>
+                                </items>
+                            </ComboBox>
+                        </VBox>
+                        <ToolbarSpacer id="importsFilterSpacer"/>
+                        <Button id="importsStartButton" text="Avvio" type="Emphasized" press=".onHistorySearch"/>
+                        <Button id="importsAdaptFiltersButton" text="Adatta filtri" type="Transparent" press=".onHistoryAdaptFilters"/>
+                    </HBox>
+                </VBox>
+                <VBox id="importsTableArea" class="iovImportsTableArea">
+                    <OverflowToolbar id="importsTableToolbar" class="iovImportsTableToolbar">
+                        <Title id="importsTableTitle" text="{= 'Importazioni (' + ${history&gt;/count} + ')' }" level="H2"/>
+                        <ToolbarSpacer id="importsTableToolbarSpacer"/>
+                        <Button id="importsSetCompletedButton" text="Imposta come Completato" type="Transparent" enabled="false" press=".onHistorySetCompleted"/>
+                        <Button id="importsSettingsButton" icon="sap-icon://action-settings" type="Transparent" press=".onHistorySettings"/>
+                    </OverflowToolbar>
+                    <Table id="importsTable" width="100%" fixedLayout="false" mode="MultiSelect" items="{history>/visibleRows}" class="iovImportsTable">
+                        <columns>
+                            <Column id="importsColName" width="24rem">
+                                <Text text="Nome importazione"/>
+                            </Column>
+                            <Column id="importsColStatus" width="14rem">
+                                <Text text="Stato di elaborazione"/>
+                            </Column>
+                            <Column id="importsColCreated" width="10rem">
+                                <Text text="Creato"/>
+                            </Column>
+                            <Column id="importsColFailed" width="10rem">
+                                <Text text="Non riuscito"/>
+                            </Column>
+                            <Column id="importsColManual" width="14rem">
+                                <Text text="Elaborato manualmente"/>
+                            </Column>
+                            <Column id="importsColDate" width="14rem">
+                                <Text text="Data di importazione"/>
+                            </Column>
+                            <Column id="importsColAuthor" width="14rem">
+                                <Text text="Autore importazione"/>
+                            </Column>
+                        </columns>
+                        <items>
+                            <ColumnListItem type="Navigation" highlight="{history>RowHighlight}" press=".onHistoryRowPress">
+                                <cells>
+                                    <Text text="{history>ImportName}"/>
+                                    <ObjectStatus text="{history>ProcessingStatus}" state="{history>ProcessingStatusState}"/>
+                                    <Text text="{history>Created}"/>
+                                    <ObjectStatus text="{history>Failed}" state="Error"/>
+                                    <Text text="{history>ManuallyProcessed}"/>
+                                    <Text text="{history>ImportDate}"/>
+                                    <Text text="{history>ImportAuthor}"/>
+                                </cells>
+                            </ColumnListItem>
+                        </items>
+                    </Table>
+                </VBox>
+            </VBox>
+        </content>
+    </Page>
+</mvc:View>
