@@ -4,100 +4,104 @@
     xmlns:core="sap.ui.core"
     xmlns:u="sap.ui.unified"
     xmlns:f="sap.f">
-    <Page id="page" showHeader="true" enableScrolling="false" class="iovPage">
+    <Page id="page" showHeader="true" enableScrolling="false" showFooter="true">
         <customHeader>
-            <Toolbar id="mainHeader" height="4rem" class="iovHeader">
-                <Title id="pageTitle" text="Importa Ordini di Vendita da file" level="H1" class="iovHeaderTitle"/>
+            <Toolbar id="mainHeader" height="4rem">
+                <Title id="pageTitle" text="Importa Ordini di Vendita da file" level="H1" titleStyle="H4"/>
                 <ToolbarSpacer id="headerSpacer"/>
                 <Button id="downloadTemplateButton" text="Scarica modello" type="Transparent" press=".onDownloadTemplate"/>
                 <Button id="allImportsButton" text="Tutte le importazioni (ordini di vendita)" type="Transparent" press=".onShowAllImports" class="sapUiLargeMarginEnd"/>
             </Toolbar>
         </customHeader>
         <content>
-            <f:FlexibleColumnLayout id="previewFlexibleColumnLayout" layout="{view>/fclLayout}" backgroundDesign="Solid" class="iovFlexibleColumnLayout">
+            <f:FlexibleColumnLayout id="previewFlexibleColumnLayout" layout="{view>/fclLayout}" backgroundDesign="Solid">
                 <f:beginColumnPages>
-                    <VBox id="mainContent" class="iovContent">
-                        <Label id="importNameLabel" text="Nome dell'importazione:" labelFor="importNameInput" class="iovImportLabel"/>
-                        <HBox id="importNameBox" width="100%" alignItems="Center" class="iovImportBox">
-                            <Input id="importNameInput" value="{view>/importName}" width="100%" class="iovImportInput"/>
-                            <u:FileUploader id="fileUploader" name="excelUpload" buttonOnly="true" buttonText="Sfoglia..." sameFilenameAllowed="true" fileType="xls,xlsx" change=".onFileUploaderChange" typeMissmatch=".onFileTypeMissmatch" class="iovBrowseButton"/>
-                        </HBox>
-                        <MessageStrip id="validationMessageStrip" visible="{view>/showValidationMessage}" text="{view>/validationMessage}" type="{view>/validationMessageType}" showIcon="true" class="iovValidationMessage">
-                            <link>
-                                <Link id="validationDetailsLink" text="Visualizza dettagli" visible="{view>/hasValidationErrors}" press=".onShowValidationDetails"/>
-                            </link>
-                        </MessageStrip>
-                        <VBox id="dropArea" width="100%" height="100%" alignItems="Center" justifyContent="Center" visible="{= !${view&gt;/previewVisible} }" class="iovDropArea">
-                            <core:Icon id="dropAreaIcon" src="sap-icon://document-text" size="5rem" class="iovDropIcon"/>
-                            <Text id="dropAreaText" text="Seleziona o trascina un file XLSX per l'anteprima." class="iovDropText"/>
-                            <Text id="selectedFileText" text="{view>/selectedFileName}" visible="{view>/hasFile}" class="iovSelectedFileText"/>
-                        </VBox>
-                        <VBox id="previewBox" visible="{view>/previewVisible}" width="100%" class="iovPreviewBox">
-                            <OverflowToolbar id="previewToolbar" class="iovPreviewToolbar">
-                                <Title id="previewTitle" text="Anteprima (dati testata)" level="H3"/>
-                                <ToolbarSpacer id="previewToolbarSpacer"/>
-                                <Button id="previewDetailsButton" text="Visualizza dettagli" visible="{view>/hasValidationErrors}" type="Transparent" press=".onShowValidationDetails"/>
-                                <Button id="previewSettingsButton" icon="sap-icon://action-settings" type="Transparent" press=".onShowPreviewSettings"/>
-                            </OverflowToolbar>
-                            <ScrollContainer id="previewScrollContainer" width="100%" height="100%" horizontal="true" vertical="true" class="iovPreviewScroll">
-                                <Table id="previewTable" width="95rem" fixedLayout="false" growing="true" growingThreshold="50" items="{view>/previewRows}" class="iovPreviewTable">
-                                    <columns>
-                                        <Column id="colTemporarySalesOrderId" width="14rem" visible="{view>/columnSettings/0/visible}">
-                                            <Text text="ID (odv temporaneo)*"/>
-                                        </Column>
-                                        <Column id="colNoteType" width="9rem" visible="{view>/columnSettings/1/visible}">
-                                            <Text text="Tipo nota*"/>
-                                        </Column>
-                                        <Column id="colShipToParty" width="12rem" visible="{view>/columnSettings/2/visible}">
-                                            <Text text="Destinatario merci*"/>
-                                        </Column>
-                                        <Column id="colSoldToParty" width="10rem" visible="{view>/columnSettings/3/visible}">
-                                            <Text text="Committente*"/>
-                                        </Column>
-                                        <Column id="colSalesOrganization" width="10rem" visible="{view>/columnSettings/4/visible}">
-                                            <Text text="Org Comm*"/>
-                                        </Column>
-                                        <Column id="colDistributionChannel" width="10rem" visible="{view>/columnSettings/5/visible}">
-                                            <Text text="Can Distr*"/>
-                                        </Column>
-                                        <Column id="colDivision" width="10rem" visible="{view>/columnSettings/6/visible}">
-                                            <Text text="Sett Merc*"/>
-                                        </Column>
-                                        <Column id="colReason" width="8rem" visible="{view>/columnSettings/7/visible}">
-                                            <Text text="Causale*"/>
-                                        </Column>
-                                        <Column id="colPaymentTerms" width="9rem" visible="{view>/columnSettings/8/visible}">
-                                            <Text text="Cond Pag*"/>
-                                        </Column>
-                                        <Column id="colCurrency" width="8rem" visible="{view>/columnSettings/9/visible}">
-                                            <Text text="Valuta*"/>
-                                        </Column>
-                                    </columns>
-                                    <items>
-                                        <ColumnListItem type="Navigation" highlight="{view>RowHighlight}" press=".onPreviewRowPress">
-                                            <cells>
-                                                <ObjectStatus text="{parts: [{path: 'view>TemporarySalesOrderId'}, {value: 'TemporarySalesOrderId'}, {path: 'view>_errors'}], formatter: '.formatter.cellText'}" state="{parts: [{value: 'TemporarySalesOrderId'}, {path: 'view>_errors'}], formatter: '.formatter.cellState'}" icon="{parts: [{value: 'TemporarySalesOrderId'}, {path: 'view>_errors'}], formatter: '.formatter.cellIcon'}"/>
-                                                <ObjectStatus text="{parts: [{path: 'view>NoteType'}, {value: 'NoteType'}, {path: 'view>_errors'}], formatter: '.formatter.cellText'}" state="{parts: [{value: 'NoteType'}, {path: 'view>_errors'}], formatter: '.formatter.cellState'}" icon="{parts: [{value: 'NoteType'}, {path: 'view>_errors'}], formatter: '.formatter.cellIcon'}"/>
-                                                <ObjectStatus text="{parts: [{path: 'view>ShipToParty'}, {value: 'ShipToParty'}, {path: 'view>_errors'}], formatter: '.formatter.cellText'}" state="{parts: [{value: 'ShipToParty'}, {path: 'view>_errors'}], formatter: '.formatter.cellState'}" icon="{parts: [{value: 'ShipToParty'}, {path: 'view>_errors'}], formatter: '.formatter.cellIcon'}"/>
-                                                <ObjectStatus text="{parts: [{path: 'view>SoldToParty'}, {value: 'SoldToParty'}, {path: 'view>_errors'}], formatter: '.formatter.cellText'}" state="{parts: [{value: 'SoldToParty'}, {path: 'view>_errors'}], formatter: '.formatter.cellState'}" icon="{parts: [{value: 'SoldToParty'}, {path: 'view>_errors'}], formatter: '.formatter.cellIcon'}"/>
-                                                <ObjectStatus text="{parts: [{path: 'view>SalesOrganization'}, {value: 'SalesOrganization'}, {path: 'view>_errors'}], formatter: '.formatter.cellText'}" state="{parts: [{value: 'SalesOrganization'}, {path: 'view>_errors'}], formatter: '.formatter.cellState'}" icon="{parts: [{value: 'SalesOrganization'}, {path: 'view>_errors'}], formatter: '.formatter.cellIcon'}"/>
-                                                <ObjectStatus text="{parts: [{path: 'view>DistributionChannel'}, {value: 'DistributionChannel'}, {path: 'view>_errors'}], formatter: '.formatter.cellText'}" state="{parts: [{value: 'DistributionChannel'}, {path: 'view>_errors'}], formatter: '.formatter.cellState'}" icon="{parts: [{value: 'DistributionChannel'}, {path: 'view>_errors'}], formatter: '.formatter.cellIcon'}"/>
-                                                <ObjectStatus text="{parts: [{path: 'view>Division'}, {value: 'Division'}, {path: 'view>_errors'}], formatter: '.formatter.cellText'}" state="{parts: [{value: 'Division'}, {path: 'view>_errors'}], formatter: '.formatter.cellState'}" icon="{parts: [{value: 'Division'}, {path: 'view>_errors'}], formatter: '.formatter.cellIcon'}"/>
-                                                <ObjectStatus text="{parts: [{path: 'view>Reason'}, {value: 'Reason'}, {path: 'view>_errors'}], formatter: '.formatter.cellText'}" state="{parts: [{value: 'Reason'}, {path: 'view>_errors'}], formatter: '.formatter.cellState'}" icon="{parts: [{value: 'Reason'}, {path: 'view>_errors'}], formatter: '.formatter.cellIcon'}"/>
-                                                <ObjectStatus text="{parts: [{path: 'view>PaymentTerms'}, {value: 'PaymentTerms'}, {path: 'view>_errors'}], formatter: '.formatter.cellText'}" state="{parts: [{value: 'PaymentTerms'}, {path: 'view>_errors'}], formatter: '.formatter.cellState'}" icon="{parts: [{value: 'PaymentTerms'}, {path: 'view>_errors'}], formatter: '.formatter.cellIcon'}"/>
-                                                <ObjectStatus text="{parts: [{path: 'view>Currency'}, {value: 'Currency'}, {path: 'view>_errors'}], formatter: '.formatter.cellText'}" state="{parts: [{value: 'Currency'}, {path: 'view>_errors'}], formatter: '.formatter.cellState'}" icon="{parts: [{value: 'Currency'}, {path: 'view>_errors'}], formatter: '.formatter.cellIcon'}"/>
-                                            </cells>
-                                        </ColumnListItem>
-                                    </items>
-                                </Table>
-                            </ScrollContainer>
-                        </VBox>
-                    </VBox>
+                    <Page id="beginPage" showHeader="false" enableScrolling="true">
+                        <content>
+                            <VBox id="mainContent" width="100%" class="sapUiSmallMarginBegin sapUiSmallMarginEnd sapUiSmallMarginTop">
+                                <Label id="importNameLabel" text="Nome dell'importazione:" labelFor="importNameInput" class="sapUiTinyMarginBottom sapUiLargeMarginTop"/>
+                                <HBox id="importNameBox" width="100%" alignItems="Center" class="sapUiSmallMarginBottom">
+                                    <Input id="importNameInput" value="{view>/importName}" width="100%" class="sapUiSmallMarginEnd"/>
+                                    <u:FileUploader id="fileUploader" name="excelUpload" buttonOnly="true" buttonText="Sfoglia..." sameFilenameAllowed="true" fileType="xls,xlsx" change=".onFileUploaderChange" typeMissmatch=".onFileTypeMissmatch"/>
+                                </HBox>
+                                <MessageStrip id="validationMessageStrip" visible="{view>/showValidationMessage}" text="{view>/validationMessage}" type="{view>/validationMessageType}" showIcon="true" class="sapUiSmallMarginBottom">
+                                    <link>
+                                        <Link id="validationDetailsLink" text="Visualizza dettagli" visible="{view>/hasValidationErrors}" press=".onShowValidationDetails"/>
+                                    </link>
+                                </MessageStrip>
+                                <VBox id="dropArea" width="100%" alignItems="Center" justifyContent="Center" visible="{= !${view>/previewVisible} }" class="sapUiMediumMarginTop">
+                                    <core:Icon id="dropAreaIcon" src="sap-icon://document-text" size="5rem" color="var(--sapContent_NonInteractiveIconColor)" class="sapUiSmallMarginBottom"/>
+                                    <Text id="dropAreaText" text="Seleziona o trascina un file XLSX per l'anteprima." class="sapUiSmallMarginBottom"/>
+                                    <Text id="selectedFileText" text="{view>/selectedFileName}" visible="{view>/hasFile}"/>
+                                </VBox>
+                                <VBox id="previewBox" visible="{view>/previewVisible}" width="100%">
+                                    <OverflowToolbar id="previewToolbar">
+                                        <Title id="previewTitle" text="Anteprima (dati testata)" level="H3"/>
+                                        <ToolbarSpacer id="previewToolbarSpacer"/>
+                                        <Button id="previewDetailsButton" text="Visualizza dettagli" visible="{view>/hasValidationErrors}" type="Transparent" press=".onShowValidationDetails"/>
+                                        <Button id="previewSettingsButton" icon="sap-icon://action-settings" type="Transparent" press=".onShowPreviewSettings"/>
+                                    </OverflowToolbar>
+                                    <ScrollContainer id="previewScrollContainer" width="100%" horizontal="true" vertical="false">
+                                        <Table id="previewTable" width="95rem" fixedLayout="false" growing="true" growingThreshold="50" items="{view>/previewRows}">
+                                            <columns>
+                                                <Column id="colTemporarySalesOrderId" width="14rem" visible="{view>/columnSettings/0/visible}">
+                                                    <Text text="ID (odv temporaneo)*"/>
+                                                </Column>
+                                                <Column id="colNoteType" width="9rem" visible="{view>/columnSettings/1/visible}">
+                                                    <Text text="Tipo nota*"/>
+                                                </Column>
+                                                <Column id="colShipToParty" width="12rem" visible="{view>/columnSettings/2/visible}">
+                                                    <Text text="Destinatario merci*"/>
+                                                </Column>
+                                                <Column id="colSoldToParty" width="10rem" visible="{view>/columnSettings/3/visible}">
+                                                    <Text text="Committente*"/>
+                                                </Column>
+                                                <Column id="colSalesOrganization" width="10rem" visible="{view>/columnSettings/4/visible}">
+                                                    <Text text="Org Comm*"/>
+                                                </Column>
+                                                <Column id="colDistributionChannel" width="10rem" visible="{view>/columnSettings/5/visible}">
+                                                    <Text text="Can Distr*"/>
+                                                </Column>
+                                                <Column id="colDivision" width="10rem" visible="{view>/columnSettings/6/visible}">
+                                                    <Text text="Sett Merc*"/>
+                                                </Column>
+                                                <Column id="colReason" width="8rem" visible="{view>/columnSettings/7/visible}">
+                                                    <Text text="Causale*"/>
+                                                </Column>
+                                                <Column id="colPaymentTerms" width="9rem" visible="{view>/columnSettings/8/visible}">
+                                                    <Text text="Cond Pag*"/>
+                                                </Column>
+                                                <Column id="colCurrency" width="8rem" visible="{view>/columnSettings/9/visible}">
+                                                    <Text text="Valuta*"/>
+                                                </Column>
+                                            </columns>
+                                            <items>
+                                                <ColumnListItem type="Navigation" highlight="{view>RowHighlight}" press=".onPreviewRowPress">
+                                                    <cells>
+                                                        <ObjectStatus text="{parts: [{path: 'view>TemporarySalesOrderId'}, {value: 'TemporarySalesOrderId'}, {path: 'view>_errors'}], formatter: '.formatter.cellText'}" state="{parts: [{value: 'TemporarySalesOrderId'}, {path: 'view>_errors'}], formatter: '.formatter.cellState'}" icon="{parts: [{value: 'TemporarySalesOrderId'}, {path: 'view>_errors'}], formatter: '.formatter.cellIcon'}"/>
+                                                        <ObjectStatus text="{parts: [{path: 'view>NoteType'}, {value: 'NoteType'}, {path: 'view>_errors'}], formatter: '.formatter.cellText'}" state="{parts: [{value: 'NoteType'}, {path: 'view>_errors'}], formatter: '.formatter.cellState'}" icon="{parts: [{value: 'NoteType'}, {path: 'view>_errors'}], formatter: '.formatter.cellIcon'}"/>
+                                                        <ObjectStatus text="{parts: [{path: 'view>ShipToParty'}, {value: 'ShipToParty'}, {path: 'view>_errors'}], formatter: '.formatter.cellText'}" state="{parts: [{value: 'ShipToParty'}, {path: 'view>_errors'}], formatter: '.formatter.cellState'}" icon="{parts: [{value: 'ShipToParty'}, {path: 'view>_errors'}], formatter: '.formatter.cellIcon'}"/>
+                                                        <ObjectStatus text="{parts: [{path: 'view>SoldToParty'}, {value: 'SoldToParty'}, {path: 'view>_errors'}], formatter: '.formatter.cellText'}" state="{parts: [{value: 'SoldToParty'}, {path: 'view>_errors'}], formatter: '.formatter.cellState'}" icon="{parts: [{value: 'SoldToParty'}, {path: 'view>_errors'}], formatter: '.formatter.cellIcon'}"/>
+                                                        <ObjectStatus text="{parts: [{path: 'view>SalesOrganization'}, {value: 'SalesOrganization'}, {path: 'view>_errors'}], formatter: '.formatter.cellText'}" state="{parts: [{value: 'SalesOrganization'}, {path: 'view>_errors'}], formatter: '.formatter.cellState'}" icon="{parts: [{value: 'SalesOrganization'}, {path: 'view>_errors'}], formatter: '.formatter.cellIcon'}"/>
+                                                        <ObjectStatus text="{parts: [{path: 'view>DistributionChannel'}, {value: 'DistributionChannel'}, {path: 'view>_errors'}], formatter: '.formatter.cellText'}" state="{parts: [{value: 'DistributionChannel'}, {path: 'view>_errors'}], formatter: '.formatter.cellState'}" icon="{parts: [{value: 'DistributionChannel'}, {path: 'view>_errors'}], formatter: '.formatter.cellIcon'}"/>
+                                                        <ObjectStatus text="{parts: [{path: 'view>Division'}, {value: 'Division'}, {path: 'view>_errors'}], formatter: '.formatter.cellText'}" state="{parts: [{value: 'Division'}, {path: 'view>_errors'}], formatter: '.formatter.cellState'}" icon="{parts: [{value: 'Division'}, {path: 'view>_errors'}], formatter: '.formatter.cellIcon'}"/>
+                                                        <ObjectStatus text="{parts: [{path: 'view>Reason'}, {value: 'Reason'}, {path: 'view>_errors'}], formatter: '.formatter.cellText'}" state="{parts: [{value: 'Reason'}, {path: 'view>_errors'}], formatter: '.formatter.cellState'}" icon="{parts: [{value: 'Reason'}, {path: 'view>_errors'}], formatter: '.formatter.cellIcon'}"/>
+                                                        <ObjectStatus text="{parts: [{path: 'view>PaymentTerms'}, {value: 'PaymentTerms'}, {path: 'view>_errors'}], formatter: '.formatter.cellText'}" state="{parts: [{value: 'PaymentTerms'}, {path: 'view>_errors'}], formatter: '.formatter.cellState'}" icon="{parts: [{value: 'PaymentTerms'}, {path: 'view>_errors'}], formatter: '.formatter.cellIcon'}"/>
+                                                        <ObjectStatus text="{parts: [{path: 'view>Currency'}, {value: 'Currency'}, {path: 'view>_errors'}], formatter: '.formatter.cellText'}" state="{parts: [{value: 'Currency'}, {path: 'view>_errors'}], formatter: '.formatter.cellState'}" icon="{parts: [{value: 'Currency'}, {path: 'view>_errors'}], formatter: '.formatter.cellIcon'}"/>
+                                                    </cells>
+                                                </ColumnListItem>
+                                            </items>
+                                        </Table>
+                                    </ScrollContainer>
+                                </VBox>
+                            </VBox>
+                        </content>
+                    </Page>
                 </f:beginColumnPages>
                 <f:midColumnPages>
-                    <Page id="detailPage" title="{view>/selectedHeaderTitle}" showNavButton="false" class="iovDetailPage">
+                    <Page id="detailPage" showHeader="true" showNavButton="false" enableScrolling="true">
                         <customHeader>
-                            <Toolbar id="detailHeaderToolbar">
+                            <Toolbar id="detailHeaderToolbar" class="sapUiLargeMarginTop">
                                 <Title id="detailHeaderTitle" text="{view>/selectedHeaderTitle}" level="H2"/>
                                 <ToolbarSpacer id="detailHeaderSpacer"/>
                                 <Button id="detailFullScreenButton" icon="sap-icon://full-screen" type="Transparent" press=".onToggleDetailFullScreen"/>
@@ -105,15 +109,15 @@
                             </Toolbar>
                         </customHeader>
                         <content>
-                            <VBox id="detailContent" width="100%" class="iovDetailContent">
-                                <OverflowToolbar id="detailPreviewToolbar" class="iovPreviewToolbar">
+                            <VBox id="detailContent" width="100%" class="sapUiSmallMarginBegin sapUiSmallMarginEnd sapUiSmallMarginTop">
+                                <OverflowToolbar id="detailPreviewToolbar">
                                     <Title id="detailPreviewTitle" text="Anteprima (dati posizione)" level="H3"/>
                                     <ToolbarSpacer id="detailPreviewToolbarSpacer"/>
                                     <Button id="detailToggleDetailsButton" text="{view>/positionDetailsButtonText}" type="Transparent" press=".onTogglePositionDetails"/>
                                     <Button id="detailSettingsButton" icon="sap-icon://action-settings" type="Transparent" enabled="false"/>
                                 </OverflowToolbar>
-                                <ScrollContainer id="detailScrollContainer" width="100%" height="100%" horizontal="true" vertical="true" class="iovPreviewScroll">
-                                    <Table id="detailTable" width="110rem" fixedLayout="false" growing="true" growingThreshold="50" items="{view>/detailRows}" class="iovPreviewTable">
+                                <ScrollContainer id="detailScrollContainer" width="100%" horizontal="true" vertical="false">
+                                    <Table id="detailTable" width="110rem" fixedLayout="false" growing="true" growingThreshold="50" items="{view>/detailRows}">
                                         <columns>
                                             <Column id="detColPosition" width="22rem">
                                                 <Text text="Posizione (ID temporaneo)"/>
@@ -131,7 +135,7 @@
                                                 <Text text="Centro Costo*"/>
                                             </Column>
                                             <Column id="detColServicePerformanceDate" width="15rem">
-                                                <Text text="Data Prestazione Attività*"/>
+                                                <Text text="Data Prestazione Attivita"/>
                                             </Column>
                                         </columns>
                                         <items>
@@ -139,9 +143,9 @@
                                                 <cells>
                                                     <VBox id="detailPositionCellBox" width="100%">
                                                         <ObjectStatus text="{parts: [{path: 'view>Position'}, {value: 'Position'}, {path: 'view>_errors'}], formatter: '.formatter.cellText'}" state="{parts: [{value: 'Position'}, {path: 'view>_errors'}], formatter: '.formatter.cellState'}" icon="{parts: [{value: 'Position'}, {path: 'view>_errors'}], formatter: '.formatter.cellIcon'}"/>
-                                                        <VBox id="detailPositionResultBox" visible="{view>/positionDetailsVisible}" items="{view>_resultDetails}" class="iovPositionResultBox">
+                                                        <VBox id="detailPositionResultBox" visible="{view>/positionDetailsVisible}" items="{view>_resultDetails}" class="sapUiTinyMarginTop">
                                                             <items>
-                                                                <Text id="detailPositionResultText" text="{parts: [{path: 'view>label'}, {path: 'view>value'}], formatter: '.formatter.positionResultDetailText'}" class="iovPositionResultText"/>
+                                                                <Text text="{parts: [{path: 'view>label'}, {path: 'view>value'}], formatter: '.formatter.positionResultDetailText'}"/>
                                                             </items>
                                                         </VBox>
                                                     </VBox>
@@ -162,7 +166,7 @@
             </f:FlexibleColumnLayout>
         </content>
         <footer>
-            <Toolbar id="footerToolbar" height="3rem" class="iovFooter">
+            <Toolbar id="footerToolbar" height="3rem">
                 <ToolbarSpacer id="footerSpacer"/>
                 <Button id="importButton" text="Importa" type="Emphasized" enabled="{view>/canImport}" press=".onImport"/>
                 <Button id="cancelButton" text="Annulla" type="Transparent" press=".onCancel"/>

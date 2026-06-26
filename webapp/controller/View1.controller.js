@@ -196,9 +196,41 @@ sap.ui.define([
                 MessageBox.warning("Il file non contiene righe da importare.");
                 return;
             }
-            const oPayload = this._buildUploadPayload(oFile.name, aParsedRows);
-            this._doPost("/sap/opu/odata/sap/ZODATA_IMPORTA_ODV_SRV/UploadFileSet", oPayload).then(function () {
-                this.getOwnerComponent().getRouter().navTo("RouteImports");
+            const oUploadPayload = this._buildUploadPayload(oFile.name, aParsedRows);
+            const oElaboraPayload = {
+                FileName: oFile.name,
+                FileId: sBackendFileId
+            };
+            this._doPost("/sap/opu/odata/sap/ZODATA_IMPORTA_ODV_SRV/UploadFileSet", oUploadPayload).then(function () {
+                return this._doPost("/sap/opu/odata/sap/ZODATA_IMPORTA_ODV_SRV/ElaboraFileSet", oElaboraPayload);
+            }.bind(this)).then(function (oData) {
+                const oEntry = oData && oData.d ? oData.d : {};
+                const sEsito = String(oEntry.Esito || "").trim().toUpperCase();
+                const sMessage = String(oEntry.Message || "").trim();
+                const fnCancellaFile = function () {
+                    this._clearSelectedFile();
+                    this.getView().getModel("view").setProperty("/importName", "");
+                }.bind(this);
+                const fnNavigaStorico = function () {
+                    fnCancellaFile();
+                    this.getOwnerComponent().getRouter().navTo("RouteImports");
+                }.bind(this);
+                const oMessageBoxOptions = {
+                    actions: ["Carica altro Excel", "Controlla elaborazioni"],
+                    emphasizedAction: "Controlla elaborazioni",
+                    onClose: function (sAction) {
+                        if (sAction === "Controlla elaborazioni") {
+                            fnNavigaStorico();
+                        } else {
+                            fnCancellaFile();
+                        }
+                    }
+                };
+                if (sEsito === "OK") {
+                    MessageBox.success(sMessage || "File inviato in elaborazione.", oMessageBoxOptions);
+                } else {
+                    MessageBox.error(sMessage || "Errore durante l'elaborazione.", oMessageBoxOptions);
+                }
             }.bind(this)).catch(function (oXHR) {
                 MessageBox.error(this._getODataErrorMessage(oXHR));
             }.bind(this));
@@ -278,12 +310,12 @@ sap.ui.define([
             if (!oRow) {
                 return;
             }
-            const sTemporarySalesOrderId = String(oRow.TemporarySalesOrderId || "");
+            const sTemporarySalesOrderId = String(oRow.TemporarySalesOrderId || "").trim();
             const aItemRows = oViewModel.getProperty("/itemRows") || [];
             const aDetailRows = aItemRows.filter(function (oItemRow) {
-                return String(oItemRow.TemporarySalesOrderId || "") === sTemporarySalesOrderId;
+                return String(oItemRow.TemporarySalesOrderId || "").trim() === sTemporarySalesOrderId;
             });
-            oViewModel.setProperty("/detailRows", aDetailRows.length ? aDetailRows : oRow._items || []);
+            oViewModel.setProperty("/detailRows", aDetailRows);
             oViewModel.setProperty("/selectedHeaderTitle", sTemporarySalesOrderId);
             oViewModel.setProperty("/positionDetailsVisible", false);
             oViewModel.setProperty("/positionDetailsButtonText", "Mostra dettagli");

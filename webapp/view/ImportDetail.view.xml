@@ -2,126 +2,83 @@
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
     xmlns:core="sap.ui.core">
-    <Page id="importDetailPage" showHeader="false" enableScrolling="false">
+    <Page id="importDetailPage" showHeader="true" enableScrolling="true">
+        <customHeader>
+            <Toolbar id="importDetailHeader" height="4rem">
+                <Button id="importDetailBackButton" icon="sap-icon://nav-back" type="Transparent" press=".onNavBack"/>
+                <Title id="importDetailHeaderTitle" text="{detail>/FileName}" level="H1" titleStyle="H4"/>
+                <ToolbarSpacer id="importDetailHeaderSpacer"/>
+                <Button id="importDetailBackToImportsButton" text="Tutte le importazioni (ordini di vendita)" type="Transparent" press=".onBackToImports"/>
+            </Toolbar>
+        </customHeader>
         <content>
-            <VBox id="importDetailRoot" width="100%" height="100%">
-                <Toolbar id="importDetailShellHeader" height="3.25rem">
-                    <Button id="importDetailBackButton" icon="sap-icon://nav-back" type="Transparent" press=".onNavBack"/>
-                    <Title id="importDetailShellTitle" text="Dettagli importazione" level="H2"/>
-                    <Button id="importDetailShellTitleMenuButton" icon="sap-icon://slim-arrow-down" type="Transparent"/>
-                    <ToolbarSpacer id="importDetailShellSpacerLeft"/>
-                    <HBox id="importDetailGlobalSearchBox" alignItems="Center">
-                        <Select id="importDetailGlobalSearchScope" selectedKey="Tutto" width="6rem">
-                            <items>
-                                <core:Item id="importDetailGlobalSearchScopeAll" key="Tutto" text="Tutto"/>
-                            </items>
-                        </Select>
-                        <SearchField id="importDetailGlobalSearchField" width="28rem" placeholder="Cerca"/>
-                    </HBox>
-                    <ToolbarSpacer id="importDetailShellSpacerRight"/>
-                    <Button id="importDetailHelpButton" icon="sap-icon://sys-help" type="Transparent"/>
-                    <Button id="importDetailNotificationButton" icon="sap-icon://bell" type="Transparent"/>
-                    <Avatar id="importDetailUserAvatar" initials="SL" displayShape="Circle"/>
-                </Toolbar>
-                <VBox id="importDetailHeader" class="iovImportDetailHeader">
-                    <OverflowToolbar id="importDetailHeaderToolbar">
-                        <Title id="importDetailTitle" text="{detail>/ImportName}" level="H1"/>
-                        <ToolbarSpacer id="importDetailHeaderToolbarSpacer"/>
-                        <Button id="importDetailRefreshButton" text="Aggiorna" type="Emphasized" press=".onRefresh"/>
-                        <Button id="importDetailBackToImportsButton" text="Tutte le importazioni (ordini di vendita)" type="Transparent" press=".onBackToImports"/>
-                    </OverflowToolbar>
-                    <HBox id="importDetailSummary" alignItems="Center" class="sapUiMediumMarginTop">
-                        <VBox id="importDetailSummaryIconBox" class="iovImportDetailSummaryIconBox">
-                            <core:Icon id="importDetailSummaryIcon" src="sap-icon://activity-individual" size="2rem" class="iovImportDetailSummaryIcon"/>
-                        </VBox>
-                        <VBox id="importDetailAuthorBlock" class="iovImportDetailSummaryBlock sapUiMediumMarginBegin">
-                            <Text id="importDetailAuthor" text="{= 'Autore importazione: ' + ${detail&gt;/ImportAuthor} }"/>
-                            <Text id="importDetailDate" text="{= 'Data di importazione: ' + ${detail&gt;/ImportDate} }"/>
-                        </VBox>
-                        <VBox id="importDetailCreatedBlock" class="iovImportDetailSummaryBlock">
-                            <Label id="importDetailCreatedLabel" text="Creato"/>
-                            <Text id="importDetailCreatedValue" text="{detail>/Created}" class="iovImportDetailMetric"/>
-                        </VBox>
-                        <VBox id="importDetailFailedBlock" class="iovImportDetailSummaryBlock">
-                            <Label id="importDetailFailedLabel" text="Non riuscito"/>
-                            <ObjectStatus id="importDetailFailedValue" text="{detail>/Failed}" state="Error" class="iovImportDetailMetric"/>
-                        </VBox>
-                        <VBox id="importDetailManualBlock" class="iovImportDetailSummaryBlock">
-                            <Label id="importDetailManualLabel" text="Completato manualmente"/>
-                            <Text id="importDetailManualValue" text="{detail>/ManuallyProcessed}" class="iovImportDetailMetric"/>
-                        </VBox>
-                        <VBox id="importDetailStatusBlock" class="iovImportDetailSummaryBlock">
-                            <Label id="importDetailStatusLabel" text="Stato di elaborazione"/>
-                            <ObjectStatus id="importDetailStatusValue" text="{detail>/ProcessingStatus}" state="{detail>/ProcessingStatusState}" class="iovImportDetailStatus"/>
-                        </VBox>
-                    </HBox>
-                </VBox>
-                <VBox id="importDetailContent" class="iovImportDetailContent">
-                    <VBox id="importDetailCard" class="iovImportDetailCard">
-                        <MessageStrip id="importDetailMessageStrip" text="{detail>/MessageText}" type="Error" showIcon="true" class="sapUiSmallMarginBottom">
-                            <link>
-                                <Link id="importDetailRetryImportLink" text="Importa" press=".onRetryImport"/>
-                            </link>
-                        </MessageStrip>
-                        <OverflowToolbar id="importDetailTableToolbar">
-                            <Title id="importDetailTableTitle" text="{= 'Posizioni importazione (' + ${detail&gt;/Count} + ')' }" level="H2"/>
-                            <ToolbarSpacer id="importDetailTableToolbarSpacer"/>
-                            <SearchField id="importDetailTableSearch" value="{detail>/Search}" width="26rem" placeholder="Cerca" search=".onDetailSearch"/>
-                            <Button id="importDetailSetCompletedButton" text="Imposta come Completato" type="Transparent" enabled="false" press=".onSetCompleted"/>
-                            <Button id="importDetailSettingsButton" icon="sap-icon://action-settings" type="Transparent" press=".onSettings"/>
-                        </OverflowToolbar>
-                        <Table id="importDetailTable" width="100%" fixedLayout="false" mode="MultiSelect" items="{detail>/VisibleRows}">
-                            <columns>
-                                <Column id="importDetailColTemporarySalesOrderId" width="16rem">
-                                    <Text text="Ordine di vendita (ID temporaneo)"/>
-                                </Column>
-                                <Column id="importDetailColCreationStatus" width="12rem">
-                                    <Text text="Stato di creazione"/>
-                                </Column>
-                                <Column id="importDetailColLog" width="8rem" hAlign="Center">
-                                    <Text text="Registro"/>
-                                </Column>
-                                <Column id="importDetailColSalesOrder" width="10rem">
-                                    <Text text="Ordine cliente"/>
-                                </Column>
-                                <Column id="importDetailColSalesOrderType" width="12rem">
-                                    <Text text="Tipo ord.cliente"/>
-                                </Column>
-                                <Column id="importDetailColCreationDate" width="12rem">
-                                    <Text text="Data di creazione"/>
-                                </Column>
-                                <Column id="importDetailColImportAuthor" width="12rem">
-                                    <Text text="Autore importazione"/>
-                                </Column>
-                                <Column id="importDetailColDistributionChannel" width="12rem">
-                                    <Text text="Canale distribuzione"/>
-                                </Column>
-                                <Column id="importDetailColSalesOrganization" width="12rem">
-                                    <Text text="Org. commerciale"/>
-                                </Column>
-                                <Column id="importDetailColDivision" width="12rem">
-                                    <Text text="Settore merceologico"/>
-                                </Column>
-                            </columns>
-                            <items>
-                                <ColumnListItem id="importDetailTableItem" type="Inactive" highlight="{detail>RowHighlight}">
-                                    <cells>
-                                        <Text id="importDetailCellTemporarySalesOrderId" text="{detail>TemporarySalesOrderId}"/>
-                                        <ObjectStatus id="importDetailCellCreationStatus" text="{detail>CreationStatus}" state="{detail>CreationStatusState}"/>
-                                        <Button id="importDetailCellLogButton" icon="sap-icon://message-information" type="Transparent" press=".onOpenApplicationLog"/>
-                                        <Text id="importDetailCellSalesOrder" text="{detail>SalesOrder}"/>
-                                        <Text id="importDetailCellSalesOrderType" text="{detail>SalesOrderType}"/>
-                                        <Text id="importDetailCellCreationDate" text="{detail>CreationDate}"/>
-                                        <Text id="importDetailCellImportAuthor" text="{detail>ImportAuthor}"/>
-                                        <Text id="importDetailCellDistributionChannel" text="{detail>DistributionChannel}"/>
-                                        <Text id="importDetailCellSalesOrganization" text="{detail>SalesOrganization}"/>
-                                        <Text id="importDetailCellDivision" text="{detail>Division}"/>
-                                    </cells>
-                                </ColumnListItem>
-                            </items>
-                        </Table>
+            <VBox id="importDetailRoot" width="100%" class="sapUiSmallMarginBegin sapUiSmallMarginEnd sapUiLargeMarginTop">
+                <HBox id="importDetailInfoBox" width="100%" wrap="Wrap" class="sapUiSmallMarginBottom">
+                    <VBox id="importDetailInfoAuthor" class="sapUiMediumMarginEnd">
+                        <Label text="Autore importazione:"/>
+                        <Text text="{detail>/ImportAuthor}"/>
                     </VBox>
-                </VBox>
+                    <VBox id="importDetailInfoDate" class="sapUiMediumMarginEnd">
+                        <Label text="Data di importazione:"/>
+                        <Text text="{detail>/DataOraDisplay}"/>
+                    </VBox>
+                    <VBox id="importDetailInfoTotale" class="sapUiMediumMarginEnd">
+                        <Label text="Totale posizioni:"/>
+                        <Text text="{detail>/Totale}"/>
+                    </VBox>
+                    <VBox id="importDetailInfoOk" class="sapUiMediumMarginEnd">
+                        <Label text="Completate:"/>
+                        <ObjectStatus text="{detail>/Ok}" state="Success"/>
+                    </VBox>
+                    <VBox id="importDetailInfoKo" class="sapUiMediumMarginEnd">
+                        <Label text="Non riuscite:"/>
+                        <ObjectStatus text="{detail>/Ko}" state="Error"/>
+                    </VBox>
+                    <VBox id="importDetailInfoStato">
+                        <Label text="Stato di elaborazione:"/>
+                        <ObjectStatus text="{detail>/Stato}" state="{detail>/StatoState}" icon="{parts: [{path: 'detail>/Stato'}], formatter: '.formatter.statoIcon'}"/>
+                    </VBox>
+                </HBox>
+                <MessageStrip id="importDetailKoStrip" visible="{detail>/HasKo}" text="Correggi i record errati e importa nuovamente." type="Error" showIcon="true" class="sapUiSmallMarginBottom">
+                    <link>
+                        <Link id="importDetailRetryLink" text="Importa" press=".onRetryImport"/>
+                    </link>
+                </MessageStrip>
+                <OverflowToolbar id="importDetailTableToolbar">
+                    <Title id="importDetailTableTitle" text="{= 'Posizioni elaborazione (' + ${detail>/Count} + ')' }" level="H2"/>
+                    <ToolbarSpacer id="importDetailTableToolbarSpacer"/>
+                    <SearchField id="importDetailTableSearch" value="{detail>/Search}" width="26rem" placeholder="Cerca" search=".onDetailSearch"/>
+                </OverflowToolbar>
+                <Table id="importDetailTable" width="100%" fixedLayout="false" growing="true" growingThreshold="50" items="{detail>/VisibleRows}">
+                    <columns>
+                        <Column id="importDetailColIdOdvTmp" width="14rem">
+                            <Text text="ID ODV temporaneo"/>
+                        </Column>
+                        <Column id="importDetailColPosnr" width="10rem">
+                            <Text text="Posizione"/>
+                        </Column>
+                        <Column id="importDetailColStato" width="14rem">
+                            <Text text="Stato elaborazione"/>
+                        </Column>
+                        <Column id="importDetailColDocCreato" width="14rem">
+                            <Text text="Documento creato"/>
+                        </Column>
+                        <Column id="importDetailColLog" width="8rem" hAlign="Center">
+                            <Text text="Registro"/>
+                        </Column>
+                    </columns>
+                    <items>
+                        <ColumnListItem type="Inactive" highlight="{detail>RowHighlight}">
+                            <cells>
+                                <Text text="{detail>IdOdvTmp}"/>
+                                <Text text="{detail>Posnr}"/>
+                                <ObjectStatus text="{parts: [{path: 'detail>Stato'}], formatter: '.formatter.statoTextDetail'}" state="{detail>StatoState}" icon="{parts: [{path: 'detail>Stato'}], formatter: '.formatter.statoIconDetail'}"/>
+                                <Text text="{detail>DocCreato}"/>
+                                <Button icon="sap-icon://message-information" type="Transparent" press=".onOpenApplicationLog" visible="{= !!${detail>Messaggio} }"/>
+                            </cells>
+                        </ColumnListItem>
+                    </items>
+                </Table>
             </VBox>
         </content>
     </Page>

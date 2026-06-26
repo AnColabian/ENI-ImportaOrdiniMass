@@ -1,57 +1,107 @@
 <core:FragmentDefinition xmlns="sap.m"
     xmlns:core="sap.ui.core"
     xmlns:u="sap.ui.unified">
-    <Dialog id="correctionImportDialog" title="Importazione correttiva" contentWidth="92rem" contentHeight="46rem" draggable="true" resizable="true" class="iovCorrectionDialog">
+    <Dialog id="correctionImportDialog" title="Importazione correttiva" contentWidth="96rem" contentHeight="46rem" draggable="true" resizable="true">
         <content>
-            <VBox id="correctionContent" width="100%" height="100%" class="sapUiMediumMargin">
-                <HBox id="correctionFileBox" width="100%" alignItems="Center" class="iovImportBox">
-                    <Input id="correctionImportNameInput" value="{detail>/CorrectionImportName}" width="40rem" editable="false"/>
-                    <u:FileUploader  id="correctionFileUploader" name="correctionExcelUpload" buttonOnly="true" buttonText="Sfoglia..." sameFilenameAllowed="true" fileType="xls,xlsx" change=".onCorrectionFileUploaderChange" typeMissmatch=".onCorrectionFileTypeMissmatch" class="iovBrowseButton"/>
+            <VBox id="correctionContent" width="100%" class="sapUiSmallMargin">
+                <HBox id="correctionFileBox" width="100%" alignItems="Center" class="sapUiSmallMarginBottom">
+                    <Input id="correctionImportNameInput" value="{detail>/CorrectionSelectedFileName}" width="40rem" editable="false" placeholder="Nessun file selezionato" class="sapUiSmallMarginEnd"/>
+                    <u:FileUploader id="correctionFileUploader" name="correctionExcelUpload" buttonOnly="true" buttonText="Sfoglia..." sameFilenameAllowed="true" fileType="xls,xlsx" change=".onCorrectionFileUploaderChange" typeMissmatch=".onCorrectionFileTypeMissmatch"/>
                 </HBox>
-                <MessageStrip id="correctionValidationMessageStrip" visible="{detail>/CorrectionShowValidationMessage}" text="{detail>/CorrectionValidationMessage}" type="{detail>/CorrectionValidationMessageType}" showIcon="true" class="iovValidationMessage"/>
-                <VBox id="correctionDropArea" width="100%" height="100%" alignItems="Center" justifyContent="Center" visible="{= !${detail&gt;/CorrectionPreviewVisible} }" class="iovDropArea">
-                    <core:Icon id="correctionDropAreaIcon" src="sap-icon://document-text" size="5rem" class="iovDropIcon"/>
-                    <Text id="correctionDropAreaText" text="Seleziona o trascina un file XLSX per l'anteprima." class="iovCorrectionDropText"/>
-                    <Text id="correctionDropAreaHint" text="Consiglio: durante la revisione dei dati nel file, non è necessario eliminare i record precedentemente riusciti." class="iovCorrectionDropHint"/>
+                <MessageStrip id="correctionValidationMessageStrip" visible="{detail>/CorrectionShowValidationMessage}" text="{detail>/CorrectionValidationMessage}" type="{detail>/CorrectionValidationMessageType}" showIcon="true" class="sapUiSmallMarginBottom">
+                    <link>
+                        <Link id="correctionValidationDetailsLink" text="Visualizza dettagli" visible="{detail>/CorrectionHasValidationErrors}" press=".onShowCorrectionValidationDetails"/>
+                    </link>
+                </MessageStrip>
+                <VBox id="correctionDropArea" width="100%" alignItems="Center" justifyContent="Center" visible="{= !${detail>/CorrectionPreviewVisible} }" class="sapUiMediumMarginTop">
+                    <core:Icon id="correctionDropAreaIcon" src="sap-icon://document-text" size="5rem" color="var(--sapContent_NonInteractiveIconColor)" class="sapUiSmallMarginBottom"/>
+                    <Text id="correctionDropAreaText" text="Seleziona o trascina un file XLSX per l'anteprima." class="sapUiSmallMarginBottom"/>
+                    <Text id="correctionDropAreaHint" text="Consiglio: durante la revisione dei dati nel file, non è necessario eliminare i record precedentemente riusciti."/>
                 </VBox>
-                <VBox id="correctionPreviewBox" visible="{detail>/CorrectionPreviewVisible}" width="100%" height="100%">
+                <VBox id="correctionPreviewBox" visible="{detail>/CorrectionPreviewVisible}" width="100%">
                     <OverflowToolbar id="correctionPreviewToolbar">
                         <Title id="correctionPreviewTitle" text="Anteprima importazione correttiva" level="H3"/>
                     </OverflowToolbar>
-                    <Table id="correctionPreviewTable" width="100%" fixedLayout="false" growing="true" growingThreshold="50" items="{detail>/CorrectionPreviewRows}">
-                        <columns>
-                            <Column id="correctionColTemporarySalesOrderId" width="14rem">
-                                <Text text="ID (odv temporaneo)*"/>
-                            </Column>
-                            <Column id="correctionColNoteType" width="9rem">
-                                <Text text="Tipo nota*"/>
-                            </Column>
-                            <Column id="correctionColShipToParty" width="12rem">
-                                <Text text="Destinatario merci*"/>
-                            </Column>
-                            <Column id="correctionColSoldToParty" width="10rem">
-                                <Text text="Committente*"/>
-                            </Column>
-                            <Column id="correctionColReason" width="8rem">
-                                <Text text="Causale*"/>
-                            </Column>
-                            <Column id="correctionColCurrency" width="8rem">
-                                <Text text="Valuta*"/>
-                            </Column>
-                        </columns>
-                        <items>
-                            <ColumnListItem id="correctionPreviewItem" highlight="{detail>RowHighlight}">
-                                <cells>
-                                    <Text id="correctionCellTemporarySalesOrderId" text="{detail>TemporarySalesOrderId}"/>
-                                    <Text id="correctionCellNoteType" text="{detail>NoteType}"/>
-                                    <Text id="correctionCellShipToParty" text="{detail>ShipToParty}"/>
-                                    <Text id="correctionCellSoldToParty" text="{detail>SoldToParty}"/>
-                                    <Text id="correctionCellReason" text="{detail>Reason}"/>
-                                    <Text id="correctionCellCurrency" text="{detail>Currency}"/>
-                                </cells>
-                            </ColumnListItem>
-                        </items>
-                    </Table>
+                    <ScrollContainer id="correctionPreviewScroll" width="100%" horizontal="true" vertical="false">
+                        <Table id="correctionPreviewTable" width="160rem" fixedLayout="false" growing="true" growingThreshold="50" items="{detail>/CorrectionPreviewRows}">
+                            <columns>
+                                <Column id="correctionColTemporarySalesOrderId" width="14rem">
+                                    <Text text="ID (odv temporaneo)*"/>
+                                </Column>
+                                <Column id="correctionColPosition" width="10rem">
+                                    <Text text="Posizione*"/>
+                                </Column>
+                                <Column id="correctionColNoteType" width="9rem">
+                                    <Text text="Tipo nota*"/>
+                                </Column>
+                                <Column id="correctionColShipToParty" width="12rem">
+                                    <Text text="Destinatario merci*"/>
+                                </Column>
+                                <Column id="correctionColSoldToParty" width="10rem">
+                                    <Text text="Committente*"/>
+                                </Column>
+                                <Column id="correctionColSalesOrganization" width="10rem">
+                                    <Text text="Org Comm*"/>
+                                </Column>
+                                <Column id="correctionColDistributionChannel" width="10rem">
+                                    <Text text="Can Distr*"/>
+                                </Column>
+                                <Column id="correctionColDivision" width="10rem">
+                                    <Text text="Sett Merc*"/>
+                                </Column>
+                                <Column id="correctionColReason" width="8rem">
+                                    <Text text="Causale*"/>
+                                </Column>
+                                <Column id="correctionColMaterial" width="10rem">
+                                    <Text text="Materiale*"/>
+                                </Column>
+                                <Column id="correctionColPlantDivision" width="10rem">
+                                    <Text text="Divisione*"/>
+                                </Column>
+                                <Column id="correctionColAmount" width="12rem">
+                                    <Text text="Importo*"/>
+                                </Column>
+                                <Column id="correctionColPaymentTerms" width="9rem">
+                                    <Text text="Cond Pag*"/>
+                                </Column>
+                                <Column id="correctionColCurrency" width="8rem">
+                                    <Text text="Valuta*"/>
+                                </Column>
+                                <Column id="correctionColProfitCenter" width="12rem">
+                                    <Text text="Centro Profitto*"/>
+                                </Column>
+                                <Column id="correctionColCostCenter" width="11rem">
+                                    <Text text="Centro Costo*"/>
+                                </Column>
+                                <Column id="correctionColServicePerformanceDate" width="16rem">
+                                    <Text text="Data Prestazione Attivita*"/>
+                                </Column>
+                            </columns>
+                            <items>
+                                <ColumnListItem highlight="{detail>RowHighlight}">
+                                    <cells>
+                                        <ObjectStatus text="{parts: [{path: 'detail>TemporarySalesOrderId'}, {value: 'TemporarySalesOrderId'}, {path: 'detail>_errors'}], formatter: '.formatter.cellText'}" state="{parts: [{value: 'TemporarySalesOrderId'}, {path: 'detail>_errors'}], formatter: '.formatter.cellState'}"/>
+                                        <ObjectStatus text="{parts: [{path: 'detail>Position'}, {value: 'Position'}, {path: 'detail>_errors'}], formatter: '.formatter.cellText'}" state="{parts: [{value: 'Position'}, {path: 'detail>_errors'}], formatter: '.formatter.cellState'}"/>
+                                        <ObjectStatus text="{parts: [{path: 'detail>NoteType'}, {value: 'NoteType'}, {path: 'detail>_errors'}], formatter: '.formatter.cellText'}" state="{parts: [{value: 'NoteType'}, {path: 'detail>_errors'}], formatter: '.formatter.cellState'}"/>
+                                        <ObjectStatus text="{parts: [{path: 'detail>ShipToParty'}, {value: 'ShipToParty'}, {path: 'detail>_errors'}], formatter: '.formatter.cellText'}" state="{parts: [{value: 'ShipToParty'}, {path: 'detail>_errors'}], formatter: '.formatter.cellState'}"/>
+                                        <ObjectStatus text="{parts: [{path: 'detail>SoldToParty'}, {value: 'SoldToParty'}, {path: 'detail>_errors'}], formatter: '.formatter.cellText'}" state="{parts: [{value: 'SoldToParty'}, {path: 'detail>_errors'}], formatter: '.formatter.cellState'}"/>
+                                        <ObjectStatus text="{parts: [{path: 'detail>SalesOrganization'}, {value: 'SalesOrganization'}, {path: 'detail>_errors'}], formatter: '.formatter.cellText'}" state="{parts: [{value: 'SalesOrganization'}, {path: 'detail>_errors'}], formatter: '.formatter.cellState'}"/>
+                                        <ObjectStatus text="{parts: [{path: 'detail>DistributionChannel'}, {value: 'DistributionChannel'}, {path: 'detail>_errors'}], formatter: '.formatter.cellText'}" state="{parts: [{value: 'DistributionChannel'}, {path: 'detail>_errors'}], formatter: '.formatter.cellState'}"/>
+                                        <ObjectStatus text="{parts: [{path: 'detail>Division'}, {value: 'Division'}, {path: 'detail>_errors'}], formatter: '.formatter.cellText'}" state="{parts: [{value: 'Division'}, {path: 'detail>_errors'}], formatter: '.formatter.cellState'}"/>
+                                        <ObjectStatus text="{parts: [{path: 'detail>Reason'}, {value: 'Reason'}, {path: 'detail>_errors'}], formatter: '.formatter.cellText'}" state="{parts: [{value: 'Reason'}, {path: 'detail>_errors'}], formatter: '.formatter.cellState'}"/>
+                                        <ObjectStatus text="{parts: [{path: 'detail>Material'}, {value: 'Material'}, {path: 'detail>_errors'}], formatter: '.formatter.cellText'}" state="{parts: [{value: 'Material'}, {path: 'detail>_errors'}], formatter: '.formatter.cellState'}"/>
+                                        <ObjectStatus text="{parts: [{path: 'detail>PlantDivision'}, {value: 'PlantDivision'}, {path: 'detail>_errors'}], formatter: '.formatter.cellText'}" state="{parts: [{value: 'PlantDivision'}, {path: 'detail>_errors'}], formatter: '.formatter.cellState'}"/>
+                                        <ObjectStatus text="{parts: [{path: 'detail>Amount'}, {value: 'Amount'}, {path: 'detail>_errors'}], formatter: '.formatter.cellText'}" state="{parts: [{value: 'Amount'}, {path: 'detail>_errors'}], formatter: '.formatter.cellState'}"/>
+                                        <ObjectStatus text="{parts: [{path: 'detail>PaymentTerms'}, {value: 'PaymentTerms'}, {path: 'detail>_errors'}], formatter: '.formatter.cellText'}" state="{parts: [{value: 'PaymentTerms'}, {path: 'detail>_errors'}], formatter: '.formatter.cellState'}"/>
+                                        <ObjectStatus text="{parts: [{path: 'detail>Currency'}, {value: 'Currency'}, {path: 'detail>_errors'}], formatter: '.formatter.cellText'}" state="{parts: [{value: 'Currency'}, {path: 'detail>_errors'}], formatter: '.formatter.cellState'}"/>
+                                        <ObjectStatus text="{parts: [{path: 'detail>ProfitCenter'}, {value: 'ProfitCenter'}, {path: 'detail>_errors'}], formatter: '.formatter.cellText'}" state="{parts: [{value: 'ProfitCenter'}, {path: 'detail>_errors'}], formatter: '.formatter.cellState'}"/>
+                                        <ObjectStatus text="{parts: [{path: 'detail>CostCenter'}, {value: 'CostCenter'}, {path: 'detail>_errors'}], formatter: '.formatter.cellText'}" state="{parts: [{value: 'CostCenter'}, {path: 'detail>_errors'}], formatter: '.formatter.cellState'}"/>
+                                        <ObjectStatus text="{parts: [{path: 'detail>ServicePerformanceDate'}, {value: 'ServicePerformanceDate'}, {path: 'detail>_errors'}], formatter: '.formatter.cellText'}" state="{parts: [{value: 'ServicePerformanceDate'}, {path: 'detail>_errors'}], formatter: '.formatter.cellState'}"/>
+                                    </cells>
+                                </ColumnListItem>
+                            </items>
+                        </Table>
+                    </ScrollContainer>
                 </VBox>
             </VBox>
         </content>

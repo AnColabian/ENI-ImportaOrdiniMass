@@ -5,6 +5,71 @@ sap.ui.define([
 ], function (Controller, MessageBox, models) {
     "use strict";
     return Controller.extend("importaordinivendita.controller.BaseController", {
+        fetchCsrfToken() {
+            return new Promise(function (resolve, reject) {
+                jQuery.ajax({
+                    url: "/sap/opu/odata/sap/ZODATA_IMPORTA_ODV_SRV/",
+                    method: "GET",
+                    headers: {
+                        "X-CSRF-Token": "Fetch"
+                    },
+                    success: function (oData, sStatus, oXHR) {
+                        const sToken = oXHR.getResponseHeader("X-CSRF-Token");
+                        this._sCsrfToken = sToken || "";
+                        resolve(this._sCsrfToken);
+                    }.bind(this),
+                    error: function (oXHR) {
+                        this._sCsrfToken = "";
+                        reject(oXHR);
+                    }.bind(this)
+                });
+            }.bind(this));
+        },
+        _doPost(sUrl, oPayload) {
+            const fnPost = function (sToken) {
+                return new Promise(function (resolve, reject) {
+                    jQuery.ajax({
+                        url: sUrl,
+                        method: "POST",
+                        contentType: "application/json",
+                        headers: {
+                            "X-CSRF-Token": sToken,
+                            "Accept": "application/json"
+                        },
+                        data: JSON.stringify(oPayload),
+                        success: function (oData) {
+                            resolve(oData);
+                        },
+                        error: function (oXHR) {
+                            reject(oXHR);
+                        }
+                    });
+                });
+            };
+            if (this._sCsrfToken) {
+                return fnPost(this._sCsrfToken);
+            }
+            return this.fetchCsrfToken().then(function (sToken) {
+                return fnPost(sToken);
+            });
+        },
+        _getODataErrorMessage(oXHR) {
+            const sDefaultMessage = "Errore durante l'operazione.";
+            if (!oXHR) {
+                return sDefaultMessage;
+            }
+            try {
+                const oResponse = JSON.parse(oXHR.responseText);
+                if (oResponse && oResponse.error && oResponse.error.message && oResponse.error.message.value) {
+                    return oResponse.error.message.value;
+                }
+            } catch (oError) {
+                if (oXHR.responseText) {
+                    return oXHR.responseText;
+                }
+            }
+            return sDefaultMessage;
+        },
         readExcelFile(oFile) {
             return new Promise(function (resolve, reject) {
                 if (!window.XLSX) {
