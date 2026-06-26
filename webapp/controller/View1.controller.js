@@ -7,8 +7,9 @@ sap.ui.define([
     "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator",
     "importaordinivendita/model/models",
-    "importaordinivendita/model/formatter"
-], (BaseController, JSONModel, MessageToast, MessageBox, Fragment, Filter, FilterOperator, models, formatter) => {
+    "importaordinivendita/model/formatter",
+    "sap/ui/thirdparty/jquery"
+], (BaseController, JSONModel, MessageToast, MessageBox, Fragment, Filter, FilterOperator, models, formatter, jQuery) => {
     "use strict";
     return BaseController.extend("importaordinivendita.controller.View1", {
         formatter: formatter,
@@ -20,8 +21,11 @@ sap.ui.define([
                 hasFile: false,
                 canImport: false,
                 file: null,
+                checkFileResult: null,
+                backendFileId: "",
                 previewVisible: false,
                 previewRows: [],
+                itemRows: [],
                 detailRows: [],
                 parsedRows: [],
                 validationMessages: [],
@@ -41,6 +45,8 @@ sap.ui.define([
                 positionDetailsVisible: false,
                 positionDetailsButtonText: "Mostra dettagli"
             }), "view");
+            this.fetchCsrfToken().catch(function () {
+            });
         },
 
         onAfterRendering() {
@@ -75,26 +81,111 @@ sap.ui.define([
                 };
             });
         },
-        onShowAllImports() {
-            MessageToast.show("Navigazione importazioni non ancora collegata");
-        },
         onFileUploaderChange(oEvent) {
             const aFiles = oEvent.getParameter("files");
             const oFile = aFiles && aFiles.length ? aFiles[0] : null;
             this._setSelectedFile(oFile);
+        },
+        _checkFileNameAvailable(sFileName) {
+            return new Promise(function (resolve, reject) {
+                jQuery.ajax({
+                    url: "/sap/opu/odata/sap/ZODATA_IMPORTA_ODV_SRV/CheckFileSet(FileName='" + encodeURIComponent(sFileName) + "')",
+                    method: "GET",
+                    headers: {
+                        "Accept": "application/json"
+                    },
+                    success: function (oData) {
+                        const oEntry = oData && oData.d ? oData.d : {};
+                        const sEsito = String(oEntry.Esito || "").trim().toUpperCase();
+                        const sMessage = String(oEntry.Message || "").trim();
+                        if (sEsito === "OK") {
+                            resolve(oEntry);
+                            return;
+                        }
+                        MessageBox.error(sMessage || "File non valido per l'importazione.");
+                        reject(oEntry);
+                    },
+                    error: function (oXHR) {
+                        let sMessage = "Errore durante il controllo del file.";
+                        try {
+                            const oResponse = JSON.parse(oXHR.responseText);
+                            sMessage = oResponse && oResponse.error && oResponse.error.message && oResponse.error.message.value ? oResponse.error.message.value : sMessage;
+                        } catch (oError) {
+                            sMessage = oXHR.responseText || sMessage;
+                        }
+                        MessageBox.error(sMessage);
+                        reject(oXHR);
+                    }
+                });
+            });
         },
         onFileTypeMissmatch(oEvent) {
             const sFileName = oEvent.getParameter("fileName") || "";
             MessageBox.error("Il file " + sFileName + " non è valido. Sono ammessi solo file .xls e .xlsx.");
             this._clearSelectedFile();
         },
+        _formatServicePerformanceDateForUpload(sValue) {
+            const sDateValue = String(sValue || "").replace(/\D/g, "");
+            if (!/^\d{8}$/.test(sDateValue)) {
+                return "";
+            }
+            const sFirstFour = sDateValue.substring(0, 4);
+            if (/^(19|20)\d{2}$/.test(sFirstFour)) {
+                return sDateValue.substring(6, 8) + sDateValue.substring(4, 6) + sDateValue.substring(0, 4);
+            }
+            return sDateValue;
+        },
+        _buildUploadPayload(sFileName, aParsedRows) {
+            const oViewModel = this.getView().getModel("view");
+            const sFileId = oViewModel.getProperty("/backendFileId");
+            const aDetails = aParsedRows.map(function (oRow) {
+                return {
+                    FileId: sFileId,
+                    IdOdvTmp: String(oRow.TemporarySalesOrderId || ""),
+                    Posnr: String(oRow.Position || ""),
+                    Fkart: String(oRow.NoteType || ""),
+                    Kunrg: String(oRow.ShipToParty || ""),
+                    Kunag: String(oRow.SoldToParty || ""),
+                    Vkorg: String(oRow.SalesOrganization || ""),
+                    Vtweg: String(oRow.DistributionChannel || ""),
+                    Spart: String(oRow.Division || ""),
+                    AugruAuft: String(oRow.Reason || ""),
+                    Matnr: String(oRow.Material || ""),
+                    Werks: String(oRow.PlantDivision || ""),
+                    Netwr: String(oRow.Amount || ""),
+                    Zterm: String(oRow.PaymentTerms || ""),
+                    Waerk: String(oRow.Currency || ""),
+                    Prctr: String(oRow.ProfitCenter || ""),
+                    Testo0: String(oRow.Text0 || ""),
+                    Testo1: String(oRow.Text1 || ""),
+                    Testo2: String(oRow.Text2 || ""),
+                    Testo3: String(oRow.Text3 || ""),
+                    Testo4: String(oRow.Text4 || ""),
+                    Testo5: String(oRow.Text5 || ""),
+                    Kostl: String(oRow.CostCenter || ""),
+                    Taxk1: String(oRow.AlternativeTaxClassification || ""),
+                    Kschl: String(oRow.ConditionType || ""),
+                    DataPrestAtt: this._formatServicePerformanceDateForUpload(oRow.ServicePerformanceDate)
+                };
+            }.bind(this));
+            return {
+                FileId: sFileId,
+                FileName: sFileName,
+                DettaglioFileSet: aDetails
+            };
+        },
         onImport() {
             const oViewModel = this.getView().getModel("view");
             const oFile = oViewModel.getProperty("/file");
             const aParsedRows = oViewModel.getProperty("/parsedRows") || [];
             const bHasValidationErrors = oViewModel.getProperty("/hasValidationErrors");
+            const sBackendFileId = oViewModel.getProperty("/backendFileId");
             if (!oFile) {
                 MessageBox.warning("Seleziona un file Excel prima di importare.");
+                return;
+            }
+            if (!sBackendFileId) {
+                MessageBox.warning("FileId non disponibile. Riesegui la selezione del file.");
                 return;
             }
             if (bHasValidationErrors) {
@@ -105,7 +196,12 @@ sap.ui.define([
                 MessageBox.warning("Il file non contiene righe da importare.");
                 return;
             }
-            MessageToast.show("Importazione pronta per " + aParsedRows.length + " righe");
+            const oPayload = this._buildUploadPayload(oFile.name, aParsedRows);
+            this._doPost("/sap/opu/odata/sap/ZODATA_IMPORTA_ODV_SRV/UploadFileSet", oPayload).then(function () {
+                this.getOwnerComponent().getRouter().navTo("RouteImports");
+            }.bind(this)).catch(function (oXHR) {
+                MessageBox.error(this._getODataErrorMessage(oXHR));
+            }.bind(this));
         },
         onCancel() {
             this._clearSelectedFile();
@@ -182,8 +278,13 @@ sap.ui.define([
             if (!oRow) {
                 return;
             }
-            oViewModel.setProperty("/detailRows", oRow._items || []);
-            oViewModel.setProperty("/selectedHeaderTitle", oRow.TemporarySalesOrderId || "");
+            const sTemporarySalesOrderId = String(oRow.TemporarySalesOrderId || "");
+            const aItemRows = oViewModel.getProperty("/itemRows") || [];
+            const aDetailRows = aItemRows.filter(function (oItemRow) {
+                return String(oItemRow.TemporarySalesOrderId || "") === sTemporarySalesOrderId;
+            });
+            oViewModel.setProperty("/detailRows", aDetailRows.length ? aDetailRows : oRow._items || []);
+            oViewModel.setProperty("/selectedHeaderTitle", sTemporarySalesOrderId);
             oViewModel.setProperty("/positionDetailsVisible", false);
             oViewModel.setProperty("/positionDetailsButtonText", "Mostra dettagli");
             oViewModel.setProperty("/fclLayout", "TwoColumnsMidExpanded");
@@ -336,7 +437,13 @@ sap.ui.define([
             oViewModel.setProperty("/hasFile", true);
             oViewModel.setProperty("/canImport", false);
             oViewModel.setProperty("/importName", this.getImportNameFromFile(oFile.name));
-            this._readExcelFile(oFile);
+            this._checkFileNameAvailable(oFile.name).then(function (oCheckResult) {
+                oViewModel.setProperty("/checkFileResult", oCheckResult);
+                oViewModel.setProperty("/backendFileId", oCheckResult.FileId || "");
+                this._readExcelFile(oFile);
+            }.bind(this)).catch(function () {
+                this._clearSelectedFile();
+            }.bind(this));
         },
         _readExcelFile(oFile) {
             this.readExcelFile(oFile).then(function (aRows) {
@@ -351,6 +458,7 @@ sap.ui.define([
             const oResult = this.parseExcelRows(aExcelRows);
             this._applyDefaultAndErrorColumnVisibility(oResult.errorProperties);
             oViewModel.setProperty("/previewRows", oResult.previewRows);
+            oViewModel.setProperty("/itemRows", oResult.itemRows || []);
             oViewModel.setProperty("/detailRows", []);
             oViewModel.setProperty("/parsedRows", oResult.parsedRows);
             oViewModel.setProperty("/validationMessages", oResult.messages);
@@ -387,8 +495,11 @@ sap.ui.define([
             oViewModel.setProperty("/selectedFileName", "");
             oViewModel.setProperty("/hasFile", false);
             oViewModel.setProperty("/canImport", false);
+            oViewModel.setProperty("/checkFileResult", null);
+            oViewModel.setProperty("/backendFileId", "");
             oViewModel.setProperty("/previewVisible", false);
             oViewModel.setProperty("/previewRows", []);
+            oViewModel.setProperty("/itemRows", []);
             oViewModel.setProperty("/detailRows", []);
             oViewModel.setProperty("/parsedRows", []);
             oViewModel.setProperty("/validationMessages", []);
